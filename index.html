@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIB-CESP | Calendário de Laboratório UFMA</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        :root { 
+            --ufma-red: #8D0333; --ufma-gold: #D4B277; 
+            --ufma-white: #F4ECE0; --ufma-green: #0AB0AB; 
+        }
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: var(--ufma-white); 
+            margin: 0; padding: 0; 
+            color: #333; 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; 
+        }
+        .header { background: white; border-bottom: 5px solid var(--ufma-red); padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header h1 { color: var(--ufma-red); margin: 0; font-size: 1.4rem; letter-spacing: 1px; }
+        .header p { color: #666; margin: 5px 0 0; font-weight: bold; font-size: 0.9rem; }
+
+        .main-content { max-width: 1100px; margin: 20px auto; padding: 0 15px; flex: 1; }
+        .calendar-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: white; padding: 12px; border-radius: 8px; border-left: 6px solid var(--ufma-gold); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; background: var(--ufma-gold); border: 2px solid var(--ufma-gold); border-radius: 4px; overflow: hidden; }
+        .day-name { background: var(--ufma-red); color: white; padding: 12px; text-align: center; font-size: 0.8rem; text-transform: uppercase; font-weight: bold; }
+        .day-cell { background: white; min-height: 120px; padding: 8px; transition: 0.3s; }
+        .day-number { font-weight: bold; color: var(--ufma-red); font-size: 1.1rem; border-bottom: 1px solid #eee; display: block; margin-bottom: 2px; }
+        .holiday-label { color: #e74c3c; font-size: 10px; font-weight: bold; display: block; margin-bottom: 5px; line-height: 1.1; }
+        .event-tag { background: #fdf2f2; border-left: 3px solid var(--ufma-green); font-size: 0.75rem; padding: 5px; margin-top: 5px; border-radius: 3px; color: #444; box-shadow: 1px 1px 2px rgba(0,0,0,0.05); }
+
+        .rules-section { background: white; padding: 25px; margin-top: 30px; border-radius: 8px; border: 1px solid #ddd; border-top: 5px solid var(--ufma-gold); }
+        .rules-section h3 { color: var(--ufma-red); margin-top: 0; }
+        .rules-list { font-size: 0.95rem; line-height: 1.7; color: #444; }
+        
+        .btn-nav { background: var(--ufma-red); color: white; border: none; padding: 8px 18px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        
+        footer { 
+            background: #2c3e50; 
+            color: white; 
+            text-align: center; 
+            padding: 20px; 
+            font-size: 0.85rem; 
+            margin-top: 40px; 
+        }
+
+        @media (max-width: 768px) {
+            .calendar-grid { grid-template-columns: 1fr; }
+            .day-name { display: none; }
+            .day-cell { min-height: auto; border-bottom: 1px solid var(--ufma-gold); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>LABORATÓRIO DE INFORMÁTICA BIOMÉDICA</h1>
+    <p>Coordenação Especial de Saúde Pública - CESP/UFMA</p>
+</div>
+
+<div class="main-content">
+    <div class="calendar-nav">
+        <button class="btn-nav" onclick="mudarMes(-1)">◀ Anterior</button>
+        <h2 id="tituloMes" style="margin:0; color: var(--ufma-red); font-size: 1.3rem;"></h2>
+        <button class="btn-nav" onclick="mudarMes(1)">Próximo ▶</button>
+    </div>
+
+    <div class="calendar-grid" id="calendar"></div>
+
+    <div class="rules-section">
+        <h3>📋 Regras para Agendamento</h3>
+        <div class="rules-list">
+            <ul style="list-style: none; padding: 0;">
+                <li>• A reserva deve ser feita com antecedência mínima de <b>24 horas</b> antes do horário desejado.</li>
+                <li>• Horário de funcionamento: <b>08H às 12H</b> e <b>14H às 17H</b>.</li>
+                <li>• Solicitação via e-mail para: <a href="mailto:cesp@ufma.br" style="color:var(--ufma-red); font-weight:bold; text-decoration:none;">cesp@ufma.br</a></li>
+                <li>• Cópia obrigatória para: <b>elzimar.neto@ufma.br</b> e <b>alcione.miranda@ufma.br</b>.</li>
+                <li>• <b>Dados necessários:</b> Nome, vínculo, data, horário, duração, nº de participantes e finalidade.</li>
+                <li>• Cancelamentos devem ser comunicados o mais breve possível.</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin: 30px;">
+        <a href="login.html" style="color: #999; text-decoration: none; font-size: 0.85rem; border: 1px solid #ccc; padding: 5px 15px; border-radius: 20px;">Acesso Restrito ADM</a>
+    </div>
+</div>
+
+<footer>
+    Developed by Elzimar José de Carvalho Neto. © Copyright 2026, All Rights Reserved.
+</footer>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBwDb81SXMByLclqYZJvayJI-9iQsslKLY",
+        authDomain: "nib-cesp.firebaseapp.com",
+        databaseURL: "https://nib-cesp-default-rtdb.firebaseio.com",
+        projectId: "nib-cesp",
+        storageBucket: "nib-cesp.firebasestorage.app",
+        messagingSenderId: "205967341488",
+        appId: "1:205967341488:web:f5408d4872a1d4c3310875"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    const feriados2026 = {
+        "2026-01-01": "Confraternização Universal", "2026-02-17": "Carnaval", "2026-04-03": "Sexta-feira Santa",
+        "2026-04-21": "Tiradentes", "2026-05-01": "Dia do Trabalhador", "2026-06-04": "Corpus Christi",
+        "2026-07-28": "Adesão do Maranhão", "2026-09-07": "Independência do Brasil", "2026-09-08": "Aniversário de São Luís",
+        "2026-10-12": "Nossa Senhora Aparecida", "2026-11-02": "Finados", "2026-11-15": "Proclamação da República",
+        "2026-11-20": "Dia de Zumbi e da Consciência Negra", "2026-12-08": "Nossa Senhora da Conceição", "2026-12-25": "Natal"
+    };
+
+    const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+    let hoje = new Date();
+    let mesExibido = hoje.getMonth();
+    let anoExibido = hoje.getFullYear();
+
+    function renderizar() {
+        database.ref('agendamentos').on('value', (snapshot) => {
+            const data = snapshot.val();
+            const appointments = data ? Object.values(data) : [];
+            const grid = document.getElementById('calendar');
+            document.getElementById('tituloMes').innerText = `${meses[mesExibido]} ${anoExibido}`;
+            grid.innerHTML = `<div class="day-name">Dom</div><div class="day-name">Seg</div><div class="day-name">Ter</div><div class="day-name">Qua</div><div class="day-name">Qui</div><div class="day-name">Sex</div><div class="day-name">Sáb</div>`;
+
+            const firstDay = new Date(anoExibido, mesExibido, 1).getDay();
+            const daysInMonth = new Date(anoExibido, mesExibido + 1, 0).getDate();
+
+            for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div class="day-cell" style="background:#f9f9f9"></div>`;
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${anoExibido}-${String(mesExibido+1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                let html = `<div class="day-cell"><span class="day-number">${day}</span>`;
+                if (feriados2026[dateStr]) html += `<span class="holiday-label">${feriados2026[dateStr]}</span>`;
+                appointments.filter(a => a.date === dateStr).forEach(a => {
+                    html += `<div class="event-tag"><b>${a.time}</b>: ${a.name}</div>`;
+                });
+                grid.innerHTML += html + `</div>`;
+            }
+        });
+    }
+
+    function mudarMes(d) {
+        mesExibido += d;
+        if (mesExibido < 0) { mesExibido = 11; anoExibido--; }
+        else if (mesExibido > 11) { mesExibido = 0; anoExibido++; }
+        renderizar();
+    }
+    renderizar();
+</script>
+</body>
+</html>

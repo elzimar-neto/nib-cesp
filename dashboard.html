@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel ADM | NIB-CESP UFMA</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <style>
+        :root { --ufma-red: #8D0333; --ufma-gold: #D4B277; --ufma-white: #F4ECE0; --ufma-green: #0AB0AB; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--ufma-white); margin: 0; padding: 10px; display: flex; flex-direction: column; min-height: 100vh; }
+        .header-adm { background: var(--ufma-red); color: white; padding: 15px; border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--ufma-gold); }
+        .nav-controls { display: flex; gap: 15px; align-items: center; background: white; padding: 12px; border: 1px solid var(--ufma-gold); border-top: none; justify-content: center; margin-bottom: 10px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; background: var(--ufma-gold); border: 2px solid var(--ufma-gold); }
+        .day-name { background: #6b0226; color: white; padding: 10px; text-align: center; font-size: 0.8rem; font-weight: bold; }
+        .day-cell { background: white; min-height: 150px; padding: 8px; position: relative; border: 1px solid #f0f0f0; }
+        .day-number { font-weight: bold; color: var(--ufma-red); font-size: 1.1rem; }
+        .btn-add { background: var(--ufma-green); color: white; border: none; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; float: right; font-weight: bold; }
+        .event-item { background: #fff; border: 1px solid #ddd; border-left: 5px solid var(--ufma-gold); padding: 6px; margin-bottom: 5px; border-radius: 4px; cursor: grab; font-size: 0.75rem; display: flex; justify-content: space-between; align-items: center; }
+        .btn-logout { background: transparent; border: 1px solid white; color: white; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+        footer { background: #2c3e50; color: white; text-align: center; padding: 15px; font-size: 0.85rem; margin-top: auto; }
+        @media (max-width: 768px) { .calendar-grid { grid-template-columns: 1fr; } .day-name { display: none; } }
+    </style>
+</head>
+<body>
+
+<div class="header-adm" id="headerAdmin" style="display:none;">
+    <div>
+        <small>UFMA - CESP</small>
+        <div style="font-size: 1.1rem; font-weight: bold;">Gestão NIB-CESP Biomédica</div>
+    </div>
+    <button class="btn-logout" onclick="fazerLogout()">Sair</button>
+</div>
+
+<div class="nav-controls" id="navControls" style="display:none;">
+    <button onclick="mudarMes(-1)" style="cursor:pointer">◀</button>
+    <h2 id="tituloMes" style="margin:0; min-width: 200px; text-align: center; color: var(--ufma-red);"></h2>
+    <button onclick="mudarMes(1)" style="cursor:pointer">▶</button>
+</div>
+
+<div class="calendar-grid" id="calendar" style="display:none;"></div>
+
+<footer id="footerApp" style="display:none;">
+    Developed by Elzimar José de Carvalho Neto. © Copyright 2026, All Rights Reserved.
+</footer>
+
+<div id="loading" style="text-align:center; padding:50px; color:var(--ufma-red); font-weight:bold;">
+    Verificando credenciais NIB-CESP...
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBwDb81SXMByLclqYZJvayJI-9iQsslKLY",
+        authDomain: "nib-cesp.firebaseapp.com",
+        databaseURL: "https://nib-cesp-default-rtdb.firebaseio.com",
+        projectId: "nib-cesp",
+        storageBucket: "nib-cesp.firebasestorage.app",
+        messagingSenderId: "205967341488",
+        appId: "1:205967341488:web:f5408d4872a1d4c3310875"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+
+    // --- PROTEÇÃO DE ROTA REAL ---
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            // Se estiver logado, mostra o conteúdo
+            document.getElementById('headerAdmin').style.display = 'flex';
+            document.getElementById('navControls').style.display = 'flex';
+            document.getElementById('calendar').style.display = 'grid';
+            document.getElementById('footerApp').style.display = 'block';
+            document.getElementById('loading').style.display = 'none';
+            renderizar();
+        } else {
+            // Se não estiver logado, volta para o login
+            window.location.href = "login.html";
+        }
+    });
+
+    const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+    let hoje = new Date();
+    let mesExibido = hoje.getMonth();
+    let anoExibido = hoje.getFullYear();
+    let appointments = [];
+
+    function renderizar() {
+        database.ref('agendamentos').on('value', (snapshot) => {
+            const data = snapshot.val();
+            appointments = data ? Object.values(data) : [];
+            
+            const grid = document.getElementById('calendar');
+            document.getElementById('tituloMes').innerText = `${meses[mesExibido]} ${anoExibido}`;
+            grid.innerHTML = `<div class="day-name">Dom</div><div class="day-name">Seg</div><div class="day-name">Ter</div><div class="day-name">Qua</div><div class="day-name">Qui</div><div class="day-name">Sex</div><div class="day-name">Sáb</div>`;
+
+            const firstDay = new Date(anoExibido, mesExibido, 1).getDay();
+            const daysInMonth = new Date(anoExibido, mesExibido + 1, 0).getDate();
+
+            for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div class="day-cell" style="background:#eee"></div>`;
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${anoExibido}-${String(mesExibido+1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                let html = `<div class="day-cell">
+                    <button class="btn-add" onclick="adicionar('${dateStr}')">+</button>
+                    <span class="day-number">${day}</span>
+                    <div class="event-list" id="list-${dateStr}">`;
+                
+                appointments.filter(a => a.date === dateStr).forEach(a => {
+                    html += `<div class="event-item" data-id="${a.id}">
+                        <span><strong>${a.time}</strong><br>${a.name}</span>
+                        <div><button onclick="editar('${a.id}')">✏️</button><button onclick="remover('${a.id}')">🗑️</button></div>
+                    </div>`;
+                });
+                html += `</div></div>`;
+                grid.innerHTML += html;
+                
+                setTimeout(() => {
+                    const el = document.getElementById(`list-${dateStr}`);
+                    if(el) new Sortable(el, { group: 'shared', animation: 150, onEnd: () => salvarNovaOrdem(dateStr) });
+                }, 10);
+            }
+        });
+    }
+
+    function adicionar(data) {
+        const nome = prompt("Nome:");
+        const hora = prompt("Horário:");
+        if (nome && hora) {
+            const id = Date.now().toString();
+            database.ref('agendamentos/' + id).set({ id, date: data, name: nome, time: hora })
+            .catch(e => alert("Erro ao salvar: " + e.message));
+        }
+    }
+
+    function editar(id) {
+        let app = appointments.find(a => a.id === id);
+        const n = prompt("Nome:", app.name);
+        const h = prompt("Horário:", app.time);
+        if (n && h) database.ref('agendamentos/' + id).update({ name: n, time: h });
+    }
+
+    function remover(id) {
+        if(confirm("Excluir agendamento?")) database.ref('agendamentos/' + id).remove();
+    }
+
+    function fazerLogout() {
+        auth.signOut().then(() => window.location.href = "login.html");
+    }
+
+    function mudarMes(d) {
+        mesExibido += d;
+        if (mesExibido < 0) { mesExibido = 11; anoExibido--; }
+        else if (mesExibido > 11) { mesExibido = 0; anoExibido++; }
+        renderizar();
+    }
+</script>
+</body>
+</html>
