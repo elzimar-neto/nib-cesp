@@ -26,7 +26,6 @@
             position: relative;
         }
 
-        /* 1. CONTAINER PRINCIPAL DA TELA (MONITOR HUD FIEL À IMAGEM) */
         .screen-wrapper {
             flex: 1;
             display: flex;
@@ -39,269 +38,89 @@
 
         .scifi-screen {
             position: absolute;
-            top: 2vh;
-            bottom: 2vh;
-            left: 5vw;
-            right: 5vw;
-            background-color: #4A011A; /* Vermelho UFMA fosco idêntico ao fundo do painel */
+            top: 2vh; bottom: 2vh; left: 5vw; right: 5vw;
+            background-color: #4A011A; 
             border: 2px solid rgba(0, 242, 254, 0.25);
             border-radius: 24px;
-            box-shadow: 
-                0 0 60px rgba(0, 242, 254, 0.12),
-                inset 0 0 50px rgba(0, 0, 0, 0.85);
+            box-shadow: 0 0 60px rgba(0, 242, 254, 0.12), inset 0 0 50px rgba(0, 0, 0, 0.85);
             overflow: hidden;
             z-index: 1;
             transform: perspective(1200px) rotateX(1.5deg);
         }
 
-        /* 2. MALHA DIGITAL (GRID DE DADOS INTERNO) */
         .scifi-grid {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
             background-size: 35px 35px;
             z-index: 2;
         }
 
-        /* 3. ELEMENTOS INTERNOS DO PAINEL (HUD & CIRCUITOS) */
-        .hud-element {
-            position: absolute;
-            pointer-events: none;
-            z-index: 3;
-            opacity: 0.65;
-        }
+        .hud-element { position: absolute; pointer-events: none; z-index: 3; opacity: 0.65; }
 
-        /* Trilhas e Conexões Eletrônicas (Lado Direito) */
         .circuits-right {
-            right: 4%;
-            top: 15%;
-            width: 300px;
-            height: 70%;
+            right: 4%; top: 15%; width: 300px; height: 70%;
             border-right: 2px solid var(--ufma-gold);
             background: linear-gradient(to bottom, transparent, rgba(212,178,119,0.03), transparent);
         }
         .circuits-right::before {
-            content: "";
-            position: absolute;
-            width: 100%; height: 100%;
-            background-image: 
-                linear-gradient(45deg, transparent 45%, var(--ufma-gold) 46%, var(--ufma-gold) 48%, transparent 49%),
-                linear-gradient(-45deg, transparent 20%, rgba(255,255,255,0.08) 21%, rgba(255,255,255,0.08) 23%, transparent 24%);
+            content: ""; position: absolute; width: 100%; height: 100%;
+            background-image: linear-gradient(45deg, transparent 45%, var(--ufma-gold) 46%, var(--ufma-gold) 48%, transparent 49%), linear-gradient(-45deg, transparent 20%, rgba(255,255,255,0.08) 21%, rgba(255,255,255,0.08) 23%, transparent 24%);
             background-size: 50px 50px;
         }
 
-        /* Gráfico Analítico Superior Direito */
         .analytics-graph {
-            right: 8%;
-            top: 8%;
-            width: 150px;
-            height: 75px;
-            border-left: 2px solid var(--neon-blue);
-            border-bottom: 2px solid var(--neon-blue);
+            right: 8%; top: 8%; width: 150px; height: 75px;
+            border-left: 2px solid var(--neon-blue); border-bottom: 2px solid var(--neon-blue);
             background: linear-gradient(45deg, rgba(0,242,254,0.04), transparent);
         }
 
-        /* Bússola/Radar Cibernético Inferior Direito */
         .cyber-compass {
-            right: 8%;
-            bottom: 8%;
-            width: 110px;
-            height: 110px;
-            border: 2px dashed rgba(0, 242, 254, 0.3);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            right: 8%; bottom: 8%; width: 110px; height: 110px;
+            border: 2px dashed rgba(0, 242, 254, 0.3); border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
         }
-        .cyber-compass::after {
-            content: "N";
-            color: var(--neon-blue);
-            font-size: 10px;
-            font-weight: 900;
-            position: absolute;
-            top: 4px;
-        }
-        .compass-inner {
-            width: 70%; height: 70%;
-            border: 1px solid var(--ufma-gold);
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(212,178,119,0.08) 0%, transparent 70%);
-        }
+        .cyber-compass::after { content: "N"; color: var(--neon-blue); font-size: 10px; font-weight: 900; position: absolute; top: 4px; }
+        
+        .compass-inner { width: 70%; height: 70%; border: 1px solid var(--ufma-gold); border-radius: 50%; background: radial-gradient(circle, rgba(212,178,119,0.08) 0%, transparent 70%); }
 
-        /* Colmeias Hexagonais de Dados (Esquerda) */
-        .hex-data {
-            left: 6%;
-            bottom: 10%;
-            width: 130px;
-            height: 130px;
-            background-image: radial-gradient(circle, rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 14px 14px;
-            border: 1px solid rgba(255,255,255,0.04);
-        }
+        .hex-data { left: 6%; bottom: 10%; width: 130px; height: 130px; background-image: radial-gradient(circle, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 14px 14px; border: 1px solid rgba(255,255,255,0.04); }
 
-        /* Nós de Dados e Flares Luminosos */
-        .data-flare {
-            position: absolute;
-            width: 5px; height: 5px;
-            border-radius: 50%;
-            box-shadow: 0 0 10px 3px white;
-            z-index: 3;
-        }
+        .data-flare { position: absolute; width: 5px; height: 5px; border-radius: 50%; box-shadow: 0 0 10px 3px white; z-index: 3; }
 
-        /* 4. CAIXA DE LOGIN INTEGRADA (GLASSMORPHISM EM ALTO RELEVO MECÂNICO) */
-        .login-container {
-            position: relative;
-            z-index: 10;
-            width: 100%;
-            max-width: 480px; 
-            padding: 10px;
-            box-sizing: border-box;
-        }
+        .login-container { position: relative; z-index: 10; width: 100%; max-width: 480px; padding: 10px; box-sizing: border-box; }
 
         .login-box { 
-            background: rgba(43, 10, 20, 0.95); /* Cor vinho escuro translúcido idêntica à imagem */
-            padding: 45px 40px; 
-            border-radius: var(--radius); 
-            width: 100%;
-            box-sizing: border-box;
-            border: 1px solid rgba(212, 178, 119, 0.35);
-            box-shadow: 
-                0 30px 70px rgba(0, 0, 0, 0.85),
-                inset 0 0 20px rgba(0, 0, 0, 0.7);
+            background: rgba(43, 10, 20, 0.95); padding: 45px 40px; border-radius: var(--radius); width: 100%; box-sizing: border-box;
+            border: 1px solid rgba(212, 178, 119, 0.35); box-shadow: 0 30px 70px rgba(0, 0, 0, 0.85), inset 0 0 20px rgba(0, 0, 0, 0.7);
         }
         
-        .logo-placeholder { 
-            color: #ffffff; 
-            font-weight: 600; 
-            margin-bottom: 5px; 
-            font-size: 1.15rem; 
-            letter-spacing: 0.2px;
-            text-align: center;
-        }
-
-        .institution-sub {
-            color: rgba(255, 255, 255, 0.65);
-            font-weight: 500;
-            font-size: 0.82rem;
-            margin: 0 0 25px 0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            text-align: center;
-        }
+        .logo-placeholder { color: #ffffff; font-weight: 600; margin-bottom: 5px; font-size: 1.15rem; letter-spacing: 0.2px; text-align: center; }
+        .institution-sub { color: rgba(255, 255, 255, 0.65); font-weight: 500; font-size: 0.82rem; margin: 0 0 25px 0; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; }
+        .subtitle { margin: 0 0 30px 0; color: rgba(255, 255, 255, 0.9); font-size: 1.05rem; font-weight: 600; text-align: center; letter-spacing: 0.3px; }
         
-        .subtitle {
-            margin: 0 0 30px 0; 
-            color: rgba(255, 255, 255, 0.9); 
-            font-size: 1.05rem;
-            font-weight: 600;
-            text-align: center;
-            letter-spacing: 0.3px;
-        }
-        
-        .input-group {
-            text-align: left;
-            margin-bottom: 22px;
-        }
-        
-        .input-group label {
-            display: block;
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.85);
-            margin-bottom: 8px;
-            letter-spacing: 0.3px;
-        }
+        .input-group { text-align: left; margin-bottom: 22px; }
+        .input-group label { display: block; font-size: 0.82rem; font-weight: 600; color: rgba(255, 255, 255, 0.85); margin-bottom: 8px; letter-spacing: 0.3px; }
         
         input { 
-            width: 100%; 
-            padding: 12px 16px; 
-            border: 1px solid rgba(255, 255, 255, 0.2); 
-            border-radius: 6px; 
-            box-sizing: border-box; 
-            outline: none; 
-            font-size: 0.95rem;
-            color: #ffffff;
-            font-family: inherit;
-            background: rgba(255, 255, 255, 0.04);
-            transition: all 0.2s ease;
+            width: 100%; padding: 12px 16px; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; box-sizing: border-box; outline: none; 
+            font-size: 0.95rem; color: #ffffff; font-family: inherit; background: rgba(255, 255, 255, 0.04); transition: all 0.2s ease;
         }
-        
-        input:focus { 
-            background: rgba(255, 255, 255, 0.08);
-            border-color: var(--ufma-gold); 
-            box-shadow: 0 0 8px rgba(212, 178, 119, 0.3);
-        }
+        input:focus { background: rgba(255, 255, 255, 0.08); border-color: var(--ufma-gold); box-shadow: 0 0 8px rgba(212, 178, 119, 0.3); }
         
         button { 
-            width: 100%; 
-            padding: 14px; 
-            background: #70142f; 
-            color: #ffffff; 
-            border: 1px solid rgba(255,255,255,0.08); 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-weight: 700; 
-            font-size: 0.98rem; 
-            font-family: inherit;
-            transition: all 0.2s ease; 
-            margin-top: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 100%; padding: 14px; background: #70142f; color: #ffffff; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; cursor: pointer; 
+            font-weight: 700; font-size: 0.98rem; font-family: inherit; transition: all 0.2s ease; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
+        button:hover { background: #85193b; border-color: var(--ufma-gold); }
+        button:disabled { background: #444; color: #888; cursor: not-allowed; }
         
-        button:hover { 
-            background: #85193b; 
-            border-color: var(--ufma-gold);
-        }
+        .error-msg { color: #ff4a5a; font-size: 0.88rem; font-weight: 600; margin-top: 15px; min-height: 20px; text-align: center; }
+        .back-link-container { text-align: center; width: 100%; }
+        .back-link { display: inline-block; margin-top: 25px; color: var(--ufma-gold); text-decoration: none; font-size: 0.88rem; font-weight: 600; transition: color 0.2s; }
+        .back-link:hover { color: #ffffff; text-shadow: 0 0 5px var(--ufma-gold); }
 
-        button:disabled {
-            background: #444;
-            color: #888;
-            cursor: not-allowed;
-        }
-        
-        .error-msg { 
-            color: #ff4a5a; 
-            font-size: 0.88rem; 
-            font-weight: 600;
-            margin-top: 15px; 
-            min-height: 20px; 
-            text-align: center;
-        }
-        
-        .back-link-container {
-            text-align: center;
-            width: 100%;
-        }
-
-        .back-link { 
-            display: inline-block; 
-            margin-top: 25px; 
-            color: var(--ufma-gold); 
-            text-decoration: none; 
-            font-size: 0.88rem; 
-            font-weight: 600;
-            transition: color 0.2s;
-        }
-        
-        .back-link:hover { 
-            color: #ffffff; 
-            text-shadow: 0 0 5px var(--ufma-gold);
-        }
-
-        /* 5. RODAPÉ FIXADO PERFEITAMENTE NA BASE INFERIOR DA PÁGINA */
-        footer { 
-            width: 100%;
-            background: #000000; 
-            color: rgba(255, 255, 255, 0.45); 
-            text-align: center; 
-            padding: 16px 0; 
-            font-size: 0.8rem; 
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            position: relative;
-            z-index: 15;
-        }
+        footer { width: 100%; background: #000000; color: rgba(255, 255, 255, 0.45); text-align: center; padding: 16px 0; font-size: 0.8rem; border-top: 1px solid rgba(255, 255, 255, 0.05); position: relative; z-index: 15; }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
@@ -315,12 +134,10 @@
 <div class="screen-wrapper">
     <div class="scifi-screen">
         <div class="scifi-grid"></div>
-        
         <div class="hud-element circuits-right"></div>
         <div class="hud-element analytics-graph"></div>
         <div class="hud-element cyber-compass"><div class="compass-inner"></div></div>
         <div class="hud-element hex-data"></div>
-        
         <div class="data-flare" style="top:25%; left:16%; background-color:#fff;"></div>
         <div class="data-flare" style="top:65%; left:20%; background-color:var(--neon-blue);"></div>
         <div class="data-flare" style="top:40%; right:26%; background-color:var(--ufma-gold);"></div>
@@ -346,7 +163,7 @@
             <div id="msg" class="error-msg"></div>
 
             <div class="back-link-container">
-                <a href="index.html" class="back-link">← Voltar para o Calendário</a>
+                <a href="index.html" class="back-link">← Voltar para a Página Inicial</a>
             </div>
         </div>
     </div>

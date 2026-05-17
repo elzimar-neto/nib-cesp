@@ -20,7 +20,7 @@
         .btn-add { background: var(--ufma-green); color: white; border: none; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; float: right; font-weight: bold; }
         .event-item { background: #fff; border: 1px solid #ddd; border-left: 5px solid var(--ufma-gold); padding: 6px; margin-bottom: 5px; border-radius: 4px; cursor: grab; font-size: 0.75rem; display: flex; justify-content: space-between; align-items: center; }
         .btn-logout { background: transparent; border: 1px solid white; color: white; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
-        footer { background: #2c3e50; color: white; text-align: center; padding: 15px; font-size: 0.85rem; margin-top: auto; }
+        footer { background: #1a202c; color: white; text-align: center; padding: 15px; font-size: 0.85rem; margin-top: auto; }
         @media (max-width: 768px) { .calendar-grid { grid-template-columns: 1fr; } .day-name { display: none; } }
     </style>
 </head>
@@ -64,10 +64,8 @@
     const database = firebase.database();
     const auth = firebase.auth();
 
-    // --- PROTEÇÃO DE ROTA REAL ---
     auth.onAuthStateChanged((user) => {
         if (user) {
-            // Se estiver logado, mostra o conteúdo
             document.getElementById('headerAdmin').style.display = 'flex';
             document.getElementById('navControls').style.display = 'flex';
             document.getElementById('calendar').style.display = 'grid';
@@ -75,7 +73,6 @@
             document.getElementById('loading').style.display = 'none';
             renderizar();
         } else {
-            // Se não estiver logado, volta para o login
             window.location.href = "login.html";
         }
     });
@@ -157,5 +154,4 @@
     }
 </script>
 </body>
-
 </html>
